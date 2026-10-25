@@ -6,6 +6,7 @@ import Toybox.ActivityMonitor;
 import Toybox.Attention;
 import Toybox.System;
 import Toybox.ActivityRecording;
+import Toybox.Application.Storage;
 
 class CountdownView extends WatchUi.View {
     private var _totalSeconds as Number;
@@ -23,10 +24,19 @@ class CountdownView extends WatchUi.View {
     // Activity recording
     private var _session as ActivityRecording.Session or Null = null;
 
+    // Settings
+    private var _intervalSignal as Boolean = false;
+
     function initialize(seconds as Number) {
         View.initialize();
         _totalSeconds = seconds;
         _remainingSeconds = seconds;
+
+        // Load settings
+        var intervalSignal = Storage.getValue("intervalSignal");
+        if (intervalSignal != null) {
+            _intervalSignal = intervalSignal as Boolean;
+        }
 
         // Create activity recording session
         // Using SPORT_TRAINING + SUB_SPORT_FLEXIBILITY_TRAINING (closest to meditation)
@@ -62,6 +72,20 @@ class CountdownView extends WatchUi.View {
 
         // Update sensor data
         updateSensorData();
+
+        // Check for interval signal (every 5 minutes)
+        if (_intervalSignal) {
+            var elapsed = _totalSeconds - _remainingSeconds;
+            if (elapsed > 0 && elapsed % 300 == 0) { // 300 seconds = 5 minutes
+                // Short vibration
+                if (Attention has :vibrate) {
+                    var vibeData = [
+                        new Attention.VibeProfile(30, 200)
+                    ] as Array<VibeProfile>;
+                    Attention.vibrate(vibeData);
+                }
+            }
+        }
 
         // Check if finished
         if (_remainingSeconds <= 0) {
@@ -153,9 +177,42 @@ class CountdownView extends WatchUi.View {
         // Draw progress arc (green) - shrinks from full circle, clockwise from top
         if (progress > 0) {
             dc.setColor(0x3DDC97, Graphics.COLOR_TRANSPARENT);
-            var startAngle = 90; // top (12 o'clock) - try 90° instead of 270°
+            var startAngle = 90; // top (12 o'clock)
             var endAngle = 90 - (progress * 360); // shrink clockwise
             dc.drawArc(centerX, centerY, radius, Graphics.ARC_CLOCKWISE, startAngle, endAngle);
+        }
+
+        dc.setPenWidth(1);
+
+        // Draw interval dots ON TOP (if enabled and total time >= 5 min)
+        if (_intervalSignal && _totalSeconds >= 300) {
+            drawIntervalDots(dc, centerX, centerY, radius);
+        }
+    }
+
+    private function drawIntervalDots(dc as Dc, centerX as Number, centerY as Number, radius as Number) as Void {
+        // Draw blue marks every 5 minutes on the ring
+        var intervalSeconds = 300; // 5 minutes
+
+        dc.setColor(0x6FB6FF, Graphics.COLOR_TRANSPARENT); // blue like time picker digits
+        dc.setPenWidth(3);
+
+        for (var i = 1; i * intervalSeconds < _totalSeconds; i++) {
+            var dotProgress = (i * intervalSeconds).toFloat() / _totalSeconds.toFloat();
+            var arcAngle = 90 - (dotProgress * 360); // Angle for drawArc (90° = top)
+            var mathAngle = -arcAngle; // Convert to Math.cos/sin convention (negate the angle)
+            var rad = Math.toRadians(mathAngle);
+
+            // Draw mark perpendicular to ring (from inner to outer edge)
+            var innerRadius = radius - 10;
+            var outerRadius = radius + 10;
+
+            var innerX = (centerX + innerRadius * Math.cos(rad)).toNumber();
+            var innerY = (centerY + innerRadius * Math.sin(rad)).toNumber();
+            var outerX = (centerX + outerRadius * Math.cos(rad)).toNumber();
+            var outerY = (centerY + outerRadius * Math.sin(rad)).toNumber();
+
+            dc.drawLine(innerX, innerY, outerX, outerY);
         }
 
         dc.setPenWidth(1);

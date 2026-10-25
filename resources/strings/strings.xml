@@ -11,4 +11,8 @@
     <string id="QuickStart">Quick Start</string>
     <string id="NewTimer">New Timer</string>
     <string id="Settings">Settings</string>
+    <string id="IntervalSignal">Signal every 5 min</string>
+    <string id="IntervalSignalDesc">short vibration</string>
+    <string id="EndSignal">End of session</string>
+    <string id="EndSignalDesc">long vibration</string>
 </strings>

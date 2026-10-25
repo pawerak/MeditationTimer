@@ -53,8 +53,9 @@ class StartDelegate extends WatchUi.InputDelegate {
     }
 
     function onSettings() as Void {
-        // TODO: Open settings (Stage 5)
-        System.println("Settings clicked - not implemented yet");
+        // Open settings view
+        var view = new SettingsView();
+        WatchUi.pushView(view, new SettingsDelegate(view), WatchUi.SLIDE_UP);
     }
 
     // BACK button exits app
