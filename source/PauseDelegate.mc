@@ -62,13 +62,13 @@ class PauseDelegate extends WatchUi.InputDelegate {
     }
 
     function onDiscard() as Void {
-        // Discard activity and exit to time picker
+        // Discard activity and exit to start screen
         var countdownView = _view.getCountdownView();
         countdownView.discardActivity();
 
-        // Exit to time picker
-        var timePickerView = new TimePickerView();
-        WatchUi.switchToView(timePickerView, new TimePickerDelegate(timePickerView), WatchUi.SLIDE_RIGHT);
+        // Exit to start screen
+        var startView = new StartView();
+        WatchUi.switchToView(startView, new StartDelegate(startView), WatchUi.SLIDE_RIGHT);
     }
 
     // Handle physical buttons (SELECT = Resume, BACK = Resume)

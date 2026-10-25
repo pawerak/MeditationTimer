@@ -8,4 +8,7 @@
     <string id="MeditationSaved">Meditation saved</string>
     <string id="AvgHeartRate">avg HR</string>
     <string id="AvgStress">avg stress</string>
+    <string id="QuickStart">Quick Start</string>
+    <string id="NewTimer">New Timer</string>
+    <string id="Settings">Settings</string>
 </strings>
