@@ -176,8 +176,10 @@ class TimePickerView extends WatchUi.View {
             Storage.setValue("lastTime", seconds);
             _lastTime = seconds;
 
-            // TODO: transition to countdown view
-            System.println("Start timer: " + seconds + " seconds");
+            // Transition to countdown view
+            var countdownView = new CountdownView(seconds);
+            var countdownDelegate = new CountdownDelegate(countdownView);
+            WatchUi.switchToView(countdownView, countdownDelegate, WatchUi.SLIDE_LEFT);
         }
     }
 }
