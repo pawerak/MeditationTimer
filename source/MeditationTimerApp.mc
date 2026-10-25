@@ -18,7 +18,8 @@ class MeditationTimerApp extends Application.AppBase {
 
     // Return the initial view of your application here
     function getInitialView() as [Views] or [Views, InputDelegates] {
-        return [ new MeditationTimerView(), new MeditationTimerDelegate() ];
+        var view = new TimePickerView();
+        return [ view, new TimePickerDelegate(view) ];
     }
 
 }
