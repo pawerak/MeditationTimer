@@ -9,19 +9,19 @@ class CountdownDelegate extends WatchUi.BehaviorDelegate {
         _view = view;
     }
 
-    // Handle START/STOP button - pause countdown
+    // Handle START/STOP button - pause countdown and show pause screen
     function onSelect() as Boolean {
         _view.pause();
-        // TODO: Show pause screen
-        System.println("Countdown paused");
+        var pauseView = new PauseView(_view);
+        WatchUi.switchToView(pauseView, new PauseDelegate(pauseView), WatchUi.SLIDE_UP);
         return true;
     }
 
-    // Handle BACK button - pause countdown
+    // Handle BACK button - pause countdown and show pause screen
     function onBack() as Boolean {
         _view.pause();
-        // TODO: Show pause screen
-        System.println("Countdown paused");
+        var pauseView = new PauseView(_view);
+        WatchUi.switchToView(pauseView, new PauseDelegate(pauseView), WatchUi.SLIDE_UP);
         return true;
     }
 }

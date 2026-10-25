@@ -13,6 +13,12 @@ class CountdownView extends WatchUi.View {
     private var _heartRate as Number or Null = null;
     private var _stress as Number or Null = null;
 
+    // For calculating averages
+    private var _heartRateSum as Number = 0;
+    private var _heartRateCount as Number = 0;
+    private var _stressSum as Number = 0;
+    private var _stressCount as Number = 0;
+
     function initialize(seconds as Number) {
         View.initialize();
         _totalSeconds = seconds;
@@ -20,9 +26,11 @@ class CountdownView extends WatchUi.View {
     }
 
     function onShow() as Void {
-        // Start timer - update every second
-        _timer = new Timer.Timer();
-        _timer.start(method(:onTimerTick), 1000, true);
+        // Start timer - update every second (only if not already created)
+        if (_timer == null) {
+            _timer = new Timer.Timer();
+            _timer.start(method(:onTimerTick), 1000, true);
+        }
     }
 
     function onHide() as Void {
@@ -60,8 +68,15 @@ class CountdownView extends WatchUi.View {
             Attention.vibrate(vibeData);
         }
 
-        // TODO: Save activity and show summary
-        System.println("Meditation finished!");
+        // Calculate averages
+        var avgHr = _heartRateCount > 0 ? (_heartRateSum / _heartRateCount) : null;
+        var avgStress = _stressCount > 0 ? (_stressSum / _stressCount) : null;
+
+        // TODO: Save activity (Stage 4)
+
+        // Show summary
+        var summaryView = new SummaryView(_totalSeconds, avgHr, avgStress);
+        WatchUi.switchToView(summaryView, new SummaryDelegate(), WatchUi.SLIDE_LEFT);
     }
 
     private function updateSensorData() as Void {
@@ -71,11 +86,19 @@ class CountdownView extends WatchUi.View {
         // Heart rate
         if (info has :heartRate) {
             _heartRate = info.heartRate;
+            if (_heartRate != null) {
+                _heartRateSum += _heartRate;
+                _heartRateCount++;
+            }
         }
 
         // Stress level (available since API 5.0.0)
         if (info has :stressScore) {
             _stress = info.stressScore;
+            if (_stress != null) {
+                _stressSum += _stress;
+                _stressCount++;
+            }
         }
     }
 
@@ -197,14 +220,14 @@ class CountdownView extends WatchUi.View {
         }
     }
 
-    // Pause the countdown
+    // Pause the countdown (stop timer but keep it alive)
     function pause() as Void {
         if (_timer != null) {
             _timer.stop();
         }
     }
 
-    // Resume the countdown
+    // Resume the countdown (restart existing timer)
     function resume() as Void {
         if (_timer != null) {
             _timer.start(method(:onTimerTick), 1000, true);
