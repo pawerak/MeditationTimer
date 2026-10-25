@@ -48,18 +48,25 @@ class PauseDelegate extends WatchUi.InputDelegate {
     }
 
     function onSave() as Void {
-        // TODO: Save activity and show summary
+        // Save activity and show summary
         var countdownView = _view.getCountdownView();
         var elapsed = countdownView.getTotalSeconds() - countdownView.getRemainingSeconds();
 
-        // For now, just show summary (activity recording in Stage 4)
+        // Calculate averages (copy logic from CountdownView)
+        // Note: Using actual elapsed time for activity duration
+        countdownView.saveActivity();
+
+        // Show summary with placeholder averages (will be calculated from session)
         var summaryView = new SummaryView(elapsed, null, null);
         WatchUi.switchToView(summaryView, new SummaryDelegate(), WatchUi.SLIDE_LEFT);
     }
 
     function onDiscard() as Void {
-        // TODO: Show confirmation dialog, then exit to time picker
-        // For now, just exit to time picker
+        // Discard activity and exit to time picker
+        var countdownView = _view.getCountdownView();
+        countdownView.discardActivity();
+
+        // Exit to time picker
         var timePickerView = new TimePickerView();
         WatchUi.switchToView(timePickerView, new TimePickerDelegate(timePickerView), WatchUi.SLIDE_RIGHT);
     }

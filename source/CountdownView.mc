@@ -5,6 +5,7 @@ import Toybox.Lang;
 import Toybox.ActivityMonitor;
 import Toybox.Attention;
 import Toybox.System;
+import Toybox.ActivityRecording;
 
 class CountdownView extends WatchUi.View {
     private var _totalSeconds as Number;
@@ -19,10 +20,21 @@ class CountdownView extends WatchUi.View {
     private var _stressSum as Number = 0;
     private var _stressCount as Number = 0;
 
+    // Activity recording
+    private var _session as ActivityRecording.Session or Null = null;
+
     function initialize(seconds as Number) {
         View.initialize();
         _totalSeconds = seconds;
         _remainingSeconds = seconds;
+
+        // Create activity recording session
+        // Using SPORT_TRAINING + SUB_SPORT_FLEXIBILITY_TRAINING (closest to meditation)
+        _session = ActivityRecording.createSession({
+            :name => "Meditation",
+            :sport => ActivityRecording.SPORT_TRAINING,
+            :subSport => ActivityRecording.SUB_SPORT_FLEXIBILITY_TRAINING
+        });
     }
 
     function onShow() as Void {
@@ -31,12 +43,18 @@ class CountdownView extends WatchUi.View {
             _timer = new Timer.Timer();
             _timer.start(method(:onTimerTick), 1000, true);
         }
+
+        // Start recording activity
+        if (_session != null && !_session.isRecording()) {
+            _session.start();
+        }
     }
 
     function onHide() as Void {
         if (_timer != null) {
             _timer.stop();
         }
+        // Don't stop session here - will be saved/discarded explicitly
     }
 
     function onTimerTick() as Void {
@@ -72,7 +90,8 @@ class CountdownView extends WatchUi.View {
         var avgHr = _heartRateCount > 0 ? (_heartRateSum / _heartRateCount) : null;
         var avgStress = _stressCount > 0 ? (_stressSum / _stressCount) : null;
 
-        // TODO: Save activity (Stage 4)
+        // Save activity
+        saveActivity();
 
         // Show summary
         var summaryView = new SummaryView(_totalSeconds, avgHr, avgStress);
@@ -240,5 +259,25 @@ class CountdownView extends WatchUi.View {
 
     function getTotalSeconds() as Number {
         return _totalSeconds;
+    }
+
+    // Save the activity recording
+    function saveActivity() as Void {
+        if (_session != null && _session.isRecording()) {
+            _session.stop();
+            _session.save();
+            System.println("Activity saved");
+        }
+    }
+
+    // Discard the activity recording
+    function discardActivity() as Void {
+        if (_session != null) {
+            if (_session.isRecording()) {
+                _session.stop();
+            }
+            _session.discard();
+            System.println("Activity discarded");
+        }
     }
 }
