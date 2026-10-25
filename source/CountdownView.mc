@@ -65,16 +65,18 @@ class CountdownView extends WatchUi.View {
     }
 
     private function updateSensorData() as Void {
-        // Get heart rate from ActivityMonitor
+        // Get heart rate and stress from ActivityMonitor
         var info = ActivityMonitor.getInfo();
-        // Try common field names for heart rate
+
+        // Heart rate
         if (info has :heartRate) {
             _heartRate = info.heartRate;
         }
 
-        // TODO: Get stress level - need to check correct API
-        // Stress may be in ActivityMonitor.Info or SensorHistory
-        _stress = null; // placeholder for now
+        // Stress level (available since API 5.0.0)
+        if (info has :stressScore) {
+            _stress = info.stressScore;
+        }
     }
 
     function onUpdate(dc as Dc) as Void {
