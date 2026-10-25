@@ -1,0 +1,15 @@
+# Build output
+bin/
+
+# VS Code
+.vscode/
+
+# Developer key - NEVER commit this
+*.der
+
+# Garmin SDK
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
