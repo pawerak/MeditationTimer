@@ -115,6 +115,12 @@ icon/                 Icon source files (SVG + large PNGs)
 
 Minimalistyczny timer medytacji na zegarki Garmin (Connect IQ). Ustawiasz czas na tarczy z cyframi jak w natywnym minutniku, aplikacja pamięta ostatni czas, odlicza z pierścieniem postępu i tętnem na żywo, a koniec sygnalizuje wibracją (opcjonalnie także co 5 minut). Sesja zapisuje się w Garmin Connect jako aktywność *Medytacja*. Testowana na Garmin Venu 2.
 
+## License
+
+[MIT License](LICENSE.md) — free to use, modify and share, including commercially. Keep the copyright notice and the license text with every copy.
+
+Copyright (c) 2026 Paweł Jurak.
+
 ## Credits
 
-Built by [Paweł Jurak](https://github.com/pawerak), with help from Claude (Anthropic) for design and code.
+Built by [@pawerak](https://github.com/pawerak), with help from Claude (Anthropic) for design and code.
