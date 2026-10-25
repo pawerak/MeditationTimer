@@ -62,14 +62,14 @@ class TimePickerView extends WatchUi.View {
         // If showing last time, draw label above
         if (_showingLastTime && _digits.size() == 0) {
             dc.setColor(0x9AA5A1, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(centerX, centerY - 30, Graphics.FONT_XTINY,
+            dc.drawText(centerX, centerY - 50, Graphics.FONT_XTINY,
                        WatchUi.loadResource(Rez.Strings.LastTime) as String,
                        Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
 
-        // Draw time
+        // Draw time (smaller font to avoid overlap)
         dc.setColor(0xF2F5F3, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(centerX, centerY, Graphics.FONT_NUMBER_MEDIUM, timeStr,
+        dc.drawText(centerX, centerY, Graphics.FONT_NUMBER_MILD, timeStr,
                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 

@@ -2,15 +2,15 @@ import Toybox.WatchUi;
 import Toybox.Lang;
 import Toybox.Math;
 
-class TimePickerDelegate extends WatchUi.BehaviorDelegate {
+class TimePickerDelegate extends WatchUi.InputDelegate {
     private var _view as TimePickerView;
 
     function initialize(view as TimePickerView) {
-        BehaviorDelegate.initialize();
+        InputDelegate.initialize();
         _view = view;
     }
 
-    // Handle tap on screen
+    // Handle screen tap - this overrides the base InputDelegate method
     function onTap(clickEvent as ClickEvent) as Boolean {
         var coords = clickEvent.getCoordinates();
         var x = coords[0];
