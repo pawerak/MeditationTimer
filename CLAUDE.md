@@ -9,7 +9,7 @@ Prosty, minimalistyczny timer medytacji na zegarek Garmin. Właściciel projektu
 - VS Code z rozszerzeniem Monkey C (Garmin).
 - Urządzenie docelowe: **Venu 2** (`venu2`) — okrągły ekran AMOLED 416×416 px, ekran dotykowy + 2 przyciski (górny prawy = START/STOP, dolny prawy = BACK, długie przytrzymanie dolnego = MENU).
 - Ścieżkę do SDK znajdziesz w `%APPDATA%\Garmin\ConnectIQ\current-sdk.cfg`. Narzędzia: `monkeyc` (kompilator), `connectiq` (symulator), `monkeydo` (uruchomienie .prg w symulatorze).
-- Klucz deweloperski: zapytaj użytkownika o ścieżkę do pliku `.der` przy pierwszej kompilacji. Nigdy nie commituj klucza.
+- Klucz deweloperski: `C:\Users\Pablo\Documents\Programowanie\Garmin\developer_Key` (plik bez rozszerzenia). Nigdy nie commituj klucza.
 - Kompilacja i uruchomienie (przykład):
   `monkeyc -d venu2 -f monkey.jungle -o bin\MeditationTimer.prg -y <klucz.der> -w`
   następnie uruchom symulator `connectiq` i `monkeydo bin\MeditationTimer.prg venu2`.

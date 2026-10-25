@@ -52,12 +52,12 @@ class PauseDelegate extends WatchUi.InputDelegate {
         var countdownView = _view.getCountdownView();
         var elapsed = countdownView.getTotalSeconds() - countdownView.getRemainingSeconds();
 
-        // Calculate averages (copy logic from CountdownView)
-        // Note: Using actual elapsed time for activity duration
+        // Get average HR before saving (saving stops the session)
+        var avgHr = countdownView.getAverageHeartRate();
+
         countdownView.saveActivity();
 
-        // Show summary with placeholder averages (will be calculated from session)
-        var summaryView = new SummaryView(elapsed, null, null);
+        var summaryView = new SummaryView(elapsed, avgHr);
         WatchUi.switchToView(summaryView, new SummaryDelegate(), WatchUi.SLIDE_LEFT);
     }
 

@@ -2,27 +2,27 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Timer;
 import Toybox.Lang;
-import Toybox.ActivityMonitor;
 import Toybox.Attention;
 import Toybox.System;
 import Toybox.ActivityRecording;
 import Toybox.Application.Storage;
+import Toybox.FitContributor;
+import Toybox.Activity;
+import Toybox.ActivityMonitor;
 
 class CountdownView extends WatchUi.View {
     private var _totalSeconds as Number;
     private var _remainingSeconds as Number;
     private var _timer as Timer.Timer or Null = null;
     private var _heartRate as Number or Null = null;
-    private var _stress as Number or Null = null;
 
     // For calculating averages
     private var _heartRateSum as Number = 0;
     private var _heartRateCount as Number = 0;
-    private var _stressSum as Number = 0;
-    private var _stressCount as Number = 0;
 
     // Activity recording
     private var _session as ActivityRecording.Session or Null = null;
+    private var _stressField as FitContributor.Field or Null = null;
 
     // Settings
     private var _intervalSignal as Boolean = false;
@@ -39,12 +39,20 @@ class CountdownView extends WatchUi.View {
         }
 
         // Create activity recording session
-        // Using SPORT_TRAINING + SUB_SPORT_FLEXIBILITY_TRAINING (closest to meditation)
+        // Using Activity.SPORT_MEDITATION for proper activity type in Garmin Connect
         _session = ActivityRecording.createSession({
             :name => "Meditation",
-            :sport => ActivityRecording.SPORT_TRAINING,
-            :subSport => ActivityRecording.SUB_SPORT_FLEXIBILITY_TRAINING
+            :sport => Activity.SPORT_MEDITATION,
+            :subSport => Activity.SUB_SPORT_GENERIC
         });
+
+        // Create FIT contributor field for stress (since it's not automatically recorded)
+        _stressField = _session.createField(
+            "stress_level",
+            0,  // Field ID
+            FitContributor.DATA_TYPE_UINT8,
+            {:mesgType => FitContributor.MESG_TYPE_RECORD, :units => ""}
+        );
     }
 
     function onShow() as Void {
@@ -110,37 +118,36 @@ class CountdownView extends WatchUi.View {
             Attention.vibrate(vibeData);
         }
 
-        // Calculate averages
-        var avgHr = _heartRateCount > 0 ? (_heartRateSum / _heartRateCount) : null;
-        var avgStress = _stressCount > 0 ? (_stressSum / _stressCount) : null;
+        // Get average heart rate from Activity API (more accurate than manual calculation)
+        var avgHr = getAverageHeartRate();
 
         // Save activity
         saveActivity();
 
         // Show summary
-        var summaryView = new SummaryView(_totalSeconds, avgHr, avgStress);
+        var summaryView = new SummaryView(_totalSeconds, avgHr);
         WatchUi.switchToView(summaryView, new SummaryDelegate(), WatchUi.SLIDE_LEFT);
     }
 
     private function updateSensorData() as Void {
-        // Get heart rate and stress from ActivityMonitor
-        var info = ActivityMonitor.getInfo();
-
-        // Heart rate
-        if (info has :heartRate) {
-            _heartRate = info.heartRate;
-            if (_heartRate != null) {
+        // Get heart rate from Activity (live sensor data during recording)
+        var activityInfo = Activity.getActivityInfo();
+        if (activityInfo != null) {
+            _heartRate = activityInfo.currentHeartRate;
+            if (_heartRate != null && _heartRate > 0) {
                 _heartRateSum += _heartRate;
                 _heartRateCount++;
             }
         }
 
-        // Stress level (available since API 5.0.0)
-        if (info has :stressScore) {
-            _stress = info.stressScore;
-            if (_stress != null) {
-                _stressSum += _stress;
-                _stressCount++;
+        // Record stress to FIT field (not displayed, but saved for Garmin Connect)
+        if (_stressField != null) {
+            var monitorInfo = ActivityMonitor.getInfo();
+            if (monitorInfo has :stressScore && monitorInfo.stressScore != null) {
+                var stress = monitorInfo.stressScore as Number;
+                if (stress > 0) {
+                    _stressField.setData(stress);
+                }
             }
         }
     }
@@ -160,8 +167,8 @@ class CountdownView extends WatchUi.View {
         // Draw center info
         drawCenterInfo(dc, centerX, centerY);
 
-        // Draw sensors (heart rate and stress) - more space below time
-        drawSensors(dc, centerX, centerY + 75);
+        // Draw heart rate centered below time
+        drawHeartRateRow(dc, centerX, centerY + 90);
     }
 
     private function drawProgressRing(dc as Dc, centerX as Number, centerY as Number) as Void {
@@ -221,44 +228,28 @@ class CountdownView extends WatchUi.View {
     private function drawCenterInfo(dc as Dc, centerX as Number, centerY as Number) as Void {
         // Label "Meditation" - higher up
         dc.setColor(0x9AA5A1, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(centerX, centerY - 65, Graphics.FONT_XTINY, "Meditation",
+        dc.drawText(centerX, centerY - 75, Graphics.FONT_XTINY, "Meditation",
                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Remaining time (big)
         dc.setColor(0xF2F5F3, Graphics.COLOR_TRANSPARENT);
         var timeStr = formatTime(_remainingSeconds);
-        dc.drawText(centerX, centerY - 10, Graphics.FONT_NUMBER_MILD, timeStr,
+        dc.drawText(centerX, centerY - 10, Graphics.FONT_NUMBER_HOT, timeStr,
                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Total time label - more space below
         dc.setColor(0x9AA5A1, Graphics.COLOR_TRANSPARENT);
         var totalStr = "of " + formatTime(_totalSeconds);
-        dc.drawText(centerX, centerY + 40, Graphics.FONT_XTINY, totalStr,
+        dc.drawText(centerX, centerY + 50, Graphics.FONT_XTINY, totalStr,
                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
-    private function drawSensors(dc as Dc, centerX as Number, y as Number) as Void {
-        dc.setColor(0x9AA5A1, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(1);
-
-        // Heart rate (left side) - icon + value only
-        var heartX = centerX - 50;
-        drawHeart(dc, heartX, y);
+    private function drawHeartRateRow(dc as Dc, centerX as Number, y as Number) as Void {
+        // Heart icon centered with value
+        var hrText = _heartRate != null && _heartRate > 0 ? _heartRate.toString() : "--";
+        drawHeart(dc, centerX - 20, y);
         dc.setColor(0xF2F5F3, Graphics.COLOR_TRANSPARENT);
-        var hrText = _heartRate != null ? _heartRate.toString() : "--";
-        dc.drawText(heartX + 20, y, Graphics.FONT_TINY, hrText,
-                   Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-
-        // Divider line
-        dc.setColor(0x2A3531, Graphics.COLOR_TRANSPARENT);
-        dc.drawLine(centerX, y - 10, centerX, y + 10);
-
-        // Stress (right side) - icon + value only
-        var stressX = centerX + 15;
-        drawWave(dc, stressX, y);
-        dc.setColor(0xF2F5F3, Graphics.COLOR_TRANSPARENT);
-        var stressText = _stress != null ? _stress.toString() : "--";
-        dc.drawText(stressX + 20, y, Graphics.FONT_TINY, stressText,
+        dc.drawText(centerX + 2, y, Graphics.FONT_SMALL, hrText,
                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
@@ -268,17 +259,6 @@ class CountdownView extends WatchUi.View {
         dc.fillCircle(x - 3, y - 2, 4);
         dc.fillCircle(x + 3, y - 2, 4);
         dc.fillPolygon([[x - 7, y], [x, y + 7], [x + 7, y]] as Array<Point2D>);
-    }
-
-    private function drawWave(dc as Dc, x as Number, y as Number) as Void {
-        // Simple wave icon (blue)
-        dc.setColor(0x4DA3FF, Graphics.COLOR_TRANSPARENT);
-        dc.setPenWidth(2);
-        dc.drawLine(x - 6, y, x - 3, y - 4);
-        dc.drawLine(x - 3, y - 4, x, y);
-        dc.drawLine(x, y, x + 3, y + 4);
-        dc.drawLine(x + 3, y + 4, x + 6, y);
-        dc.setPenWidth(1);
     }
 
     private function formatTime(totalSeconds as Number) as String {
@@ -316,6 +296,17 @@ class CountdownView extends WatchUi.View {
 
     function getTotalSeconds() as Number {
         return _totalSeconds;
+    }
+
+    function getAverageHeartRate() as Number or Null {
+        var activityInfo = Activity.getActivityInfo();
+        if (activityInfo != null && activityInfo.averageHeartRate != null) {
+            return activityInfo.averageHeartRate;
+        }
+        if (_heartRateCount > 0) {
+            return _heartRateSum / _heartRateCount;
+        }
+        return null;
     }
 
     // Save the activity recording
