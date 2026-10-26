@@ -5,7 +5,7 @@ import Toybox.Lang;
 class SettingsMenu extends WatchUi.Menu2 {
 
     function initialize() {
-        Menu2.initialize({:title => "Settings"});
+        Menu2.initialize({:title => WatchUi.loadResource(Rez.Strings.Settings) as String});
 
         // Get current setting
         var intervalSignal = Storage.getValue("intervalSignal");

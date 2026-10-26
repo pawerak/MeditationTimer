@@ -27,8 +27,14 @@ class CountdownView extends WatchUi.View {
     // Settings
     private var _intervalSignal as Boolean = false;
 
+    // Localized strings (loaded once)
+    private var _meditationLabel as String = "";
+    private var _ofTotalFormat as String = "";
+
     function initialize(seconds as Number) {
         View.initialize();
+        _meditationLabel = WatchUi.loadResource(Rez.Strings.Meditation) as String;
+        _ofTotalFormat = WatchUi.loadResource(Rez.Strings.OfTotal) as String;
         _totalSeconds = seconds;
         _remainingSeconds = seconds;
 
@@ -228,7 +234,7 @@ class CountdownView extends WatchUi.View {
     private function drawCenterInfo(dc as Dc, centerX as Number, centerY as Number) as Void {
         // Label "Meditation" - higher up
         dc.setColor(0x9AA5A1, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(centerX, centerY - 75, Graphics.FONT_XTINY, "Meditation",
+        dc.drawText(centerX, centerY - 75, Graphics.FONT_XTINY, _meditationLabel,
                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Remaining time (big)
@@ -239,7 +245,7 @@ class CountdownView extends WatchUi.View {
 
         // Total time label - more space below
         dc.setColor(0x9AA5A1, Graphics.COLOR_TRANSPARENT);
-        var totalStr = "of " + formatTime(_totalSeconds);
+        var totalStr = Lang.format(_ofTotalFormat, [formatTime(_totalSeconds)]);
         dc.drawText(centerX, centerY + 50, Graphics.FONT_XTINY, totalStr,
                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }

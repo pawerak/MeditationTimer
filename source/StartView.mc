@@ -27,7 +27,7 @@ class StartView extends WatchUi.View {
 
         // Title
         dc.setColor(0xF2F5F3, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(centerX, 60, Graphics.FONT_MEDIUM, "Meditation",
+        dc.drawText(centerX, 60, Graphics.FONT_MEDIUM, WatchUi.loadResource(Rez.Strings.Meditation) as String,
                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Three buttons

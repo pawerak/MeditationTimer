@@ -25,7 +25,7 @@ class SettingsView extends WatchUi.View {
 
         // Title
         dc.setColor(0xF2F5F3, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(centerX, 50, Graphics.FONT_MEDIUM, "Settings",
+        dc.drawText(centerX, 50, Graphics.FONT_MEDIUM, WatchUi.loadResource(Rez.Strings.Settings) as String,
                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Setting 1: Interval signal (toggleable)
@@ -51,7 +51,7 @@ class SettingsView extends WatchUi.View {
 
         // Description (smaller, gray) - more space to avoid overlap
         dc.setColor(0x9AA5A1, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(40, y + 24, Graphics.FONT_XTINY, description,
+        dc.drawText(40, y + 30, Graphics.FONT_XTINY, description,
                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Vertical toggle switch on the right (native Garmin style)

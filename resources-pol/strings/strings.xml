@@ -1,0 +1,20 @@
+<strings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <string id="AppName">Timer medytacji</string>
+    <string id="LastTime">OSTATNIO</string>
+    <string id="Paused">Pauza</string>
+    <string id="Resume">Wzn&#243;w</string>
+    <string id="Save">Zapisz</string>
+    <string id="Discard">Odrzu&#263;</string>
+    <string id="MeditationSaved">Medytacja zapisana</string>
+    <string id="AvgHeartRate">&#347;r. t&#281;tno</string>
+    <string id="AvgStress">&#347;r. stres</string>
+    <string id="QuickStart">Szybki start</string>
+    <string id="NewTimer">Nowy timer</string>
+    <string id="Settings">Ustawienia</string>
+    <string id="IntervalSignal">Sygna&#322; co 5 min</string>
+    <string id="IntervalSignalDesc">kr&#243;tka wibracja</string>
+    <string id="EndSignal">Koniec sesji</string>
+    <string id="EndSignalDesc">d&#322;uga wibracja</string>
+    <string id="Meditation">Medytacja</string>
+    <string id="OfTotal">z $1$</string>
+</strings>

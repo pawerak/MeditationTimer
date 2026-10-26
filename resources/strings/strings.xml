@@ -15,4 +15,6 @@
     <string id="IntervalSignalDesc">short vibration</string>
     <string id="EndSignal">End of session</string>
     <string id="EndSignalDesc">long vibration</string>
+    <string id="Meditation">Meditation</string>
+    <string id="OfTotal">of $1$</string>
 </strings>
