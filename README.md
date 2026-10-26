@@ -106,10 +106,10 @@ icon/                 Icon source files (SVG + large PNGs)
 
 ## Roadmap
 
-- [ ] Polish translation of the interface
+- [x] Polish translation of the interface
 - [ ] Interval signal setting also available in the Garmin Connect app
 - [ ] Support for more devices
-- [ ] Free release in the Connect IQ Store
+- [x] Submitted to the Connect IQ Store (review pending)
 
 ## Po polsku
 
